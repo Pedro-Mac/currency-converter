@@ -1,8 +1,28 @@
+@import "../../styles/master";
+
 main {
   .inputs-container {
-    .input-amount[type="number"]::-webkit-inner-spin-button,
-    .input-amount[type="number"]::-webkit-outter-spin-button {
-      -webkit-appearance: none;
+    height: 3rem;
+    background-color: $light-fade-color;
+    .input-amount {
+      padding: 0;
+      height: 100%;
+      border: none;
+      background-color: $light-fade-color;
+      outline: none;
+
+      &::-webkit-inner-spin-button,
+      &::-webkit-outter-spin-button {
+        -webkit-appearance: none;
+      }
+    }
+
+    .currency-select {
+      padding: 0.25rem 0.5rem;
+      border: none;
+      border-radius: 1rem;
+      background-color: #fff;
+      outline: none;
     }
   }
 }
