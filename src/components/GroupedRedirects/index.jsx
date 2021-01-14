@@ -11,10 +11,26 @@ import playstore from "../../images/svg/playstore.svg";
 import "./style.scss";
 
 const GroupedRedirects = () => {
+  const capitalizedStrings = links.map((value) => {
+    const { header, items } = value;
+    const capitalizedHeader = header.charAt(0).toUpperCase() + header.slice(1);
+    const arrayOfStrings = items.map((string) => {
+      const capitalizedWords = string.split(" ").map((word) => {
+        if (word === "faq") {
+          return "FAQ";
+        } else {
+          return word.charAt(0).toUpperCase() + word.slice(1);
+        }
+      });
+      return capitalizedWords.join(" ");
+    });
+    return { header: capitalizedHeader, items: arrayOfStrings };
+  });
+
   return (
     <section>
       <img src={logo} alt="uphold logo" />
-      {links.map((value, index) => (
+      {capitalizedStrings.map((value, index) => (
         //value is an object with a title and a list of links
         <div key={index} className="group-list-container">
           <h4 className="group-list-header">{value.header}</h4>
@@ -22,7 +38,9 @@ const GroupedRedirects = () => {
           <ul className="group-list list">
             {value.items.map((item, index) => (
               <li key={index} className="group-list-item">
-                {item}
+                <a href="/" className="anchor">
+                  {item}
+                </a>
               </li>
             ))}
           </ul>

@@ -8,6 +8,7 @@ section {
 
   .group-list-container {
     .group-list-header {
+      font-size: 1rem;
       margin-top: 0;
       text-align: start;
       color: $secondary-color;
@@ -17,6 +18,15 @@ section {
       text-align: start;
       .group-list-item {
         margin: 0.5rem 0;
+
+        a {
+          color: $fade-color;
+          transition: all 0.3s;
+
+          &:hover {
+            color: $primary-color;
+          }
+        }
       }
     }
   }
