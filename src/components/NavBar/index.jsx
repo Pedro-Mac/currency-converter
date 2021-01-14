@@ -7,7 +7,7 @@ import "./style.scss";
 const NavBar = () => {
   return (
     <nav>
-      <ul className="nav-links-group">
+      <ul className="nav-links-group list">
         <li className="nav-links-item">
           <a href="/" className="nav-link">
             Personal

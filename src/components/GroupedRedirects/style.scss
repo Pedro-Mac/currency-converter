@@ -1,0 +1,23 @@
+@import "../../styles/master";
+section {
+  padding-top: 3rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  border-top: 2px solid $light-fade-color;
+
+  .group-list-container {
+    .group-list-header {
+      margin-top: 0;
+      text-align: start;
+      color: $secondary-color;
+    }
+
+    .group-list {
+      text-align: start;
+      .group-list-item {
+        margin: 0.5rem 0;
+      }
+    }
+  }
+}
