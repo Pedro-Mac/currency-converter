@@ -30,4 +30,11 @@ section {
       }
     }
   }
+
+  .stores-container {
+    display: flex;
+    a:first-child {
+      margin-right: 1rem;
+    }
+  }
 }

@@ -11,26 +11,28 @@ import playstore from "../../images/svg/playstore.svg";
 import "./style.scss";
 
 const GroupedRedirects = () => {
-  const capitalizedStrings = links.map((value) => {
+  //this turns the lowercase strings in the "links" file into Capitalized strings
+  const capitalizedLinks = links.map((value) => {
     const { header, items } = value;
     const capitalizedHeader = header.charAt(0).toUpperCase() + header.slice(1);
-    const arrayOfStrings = items.map((string) => {
-      const capitalizedWords = string.split(" ").map((word) => {
+
+    const arrayOfCapitalizedStrings = items.map((string) => {
+      const capitalizedItems = string.split(" ").map((word) => {
         if (word === "faq") {
           return "FAQ";
         } else {
           return word.charAt(0).toUpperCase() + word.slice(1);
         }
       });
-      return capitalizedWords.join(" ");
+      return capitalizedItems.join(" ");
     });
-    return { header: capitalizedHeader, items: arrayOfStrings };
+    return { header: capitalizedHeader, items: arrayOfCapitalizedStrings };
   });
 
   return (
     <section>
       <img src={logo} alt="uphold logo" />
-      {capitalizedStrings.map((value, index) => (
+      {capitalizedLinks.map((value, index) => (
         //value is an object with a title and a list of links
         <div key={index} className="group-list-container">
           <h4 className="group-list-header">{value.header}</h4>
@@ -47,9 +49,13 @@ const GroupedRedirects = () => {
         </div>
       ))}
 
-      <div>
-        <img src={appstore} alt="Appstore" />
-        <img src={playstore} alt="Playstore" />
+      <div className="stores-container">
+        <a href="/">
+          <img src={appstore} alt="Appstore" />
+        </a>
+        <a href="/">
+          <img src={playstore} alt="Playstore" />
+        </a>
       </div>
     </section>
   );
