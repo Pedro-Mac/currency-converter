@@ -1,0 +1,11 @@
+@import "../../styles/master";
+
+header {
+  .header-title {
+    color: $secondary-color;
+  }
+
+  .header-text {
+    color: $fade-color;
+  }
+}

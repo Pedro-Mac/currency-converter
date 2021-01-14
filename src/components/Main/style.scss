@@ -1,0 +1,8 @@
+main {
+  .inputs-container {
+    .input-amount[type="number"]::-webkit-inner-spin-button,
+    .input-amount[type="number"]::-webkit-outter-spin-button {
+      -webkit-appearance: none;
+    }
+  }
+}
