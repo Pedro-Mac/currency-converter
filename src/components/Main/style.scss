@@ -4,16 +4,64 @@ main {
   .inputs-container {
     height: 3rem;
     background-color: $light-fade-color;
+    display: flex;
+    max-width: 30rem;
+    margin: 0 auto;
+    justify-content: space-between;
     .input-amount {
       padding: 0;
       height: 100%;
       border: none;
       background-color: $light-fade-color;
       outline: none;
+      margin-left: 1rem;
 
       &::-webkit-inner-spin-button,
       &::-webkit-outter-spin-button {
         -webkit-appearance: none;
+      }
+    }
+
+    .currencies-container {
+      display: flex;
+      flex-direction: column;
+      align-items: flex-start;
+      justify-content: flex-start;
+      margin-right: 1rem;
+
+      .currency {
+        display: flex;
+        background-color: #fff;
+        padding: 0.25rem 0.75rem;
+        border-radius: 1rem;
+        cursor: pointer;
+        margin-top: 0.5rem;
+
+        .currency-image {
+          width: 20px;
+          height: 20px;
+        }
+
+        .currency-text {
+          margin: 0;
+          padding-left: 0.25rem;
+        }
+
+        .dropdown {
+          padding-left: 0.25rem;
+          margin-top: 0.25rem;
+          display: none;
+        }
+        .selected {
+          display: block;
+        }
+      }
+
+      .currency-options-container {
+        width: 100%;
+        margin-top: 0.25rem;
+        background-color: #fff;
+        border-radius: 0.5rem;
       }
     }
   }
