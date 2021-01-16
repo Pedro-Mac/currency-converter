@@ -1,13 +1,13 @@
 import React from "react";
 
-const AmountInput = ({ amount, handleAmountInput }) => {
+const AmountInput = ({ amount, handleAmountInput, className }) => {
   return (
     <input
       type="number"
-      className="input-amount"
       placeholder="0.00"
       value={amount}
       onChange={handleAmountInput}
+      className={className}
     />
   );
 };

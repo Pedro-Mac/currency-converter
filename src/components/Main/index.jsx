@@ -4,11 +4,11 @@ import SDK from "@uphold/uphold-sdk-javascript";
 //components
 import Currency from "../Currency";
 import AmountInput from "../AmountInput";
+import SelectedCurrency from "../SelectedCurrency";
 
 import { listOfCurrencies } from "./listOfCurrencies";
 //images
 import usd from "../../images/png/currencies/USD.png";
-import dropdownIcon from "../../images/svg/dropdown-icon.svg";
 
 import "./style.scss";
 
@@ -45,21 +45,19 @@ const Main = () => {
   return (
     <main>
       <div className="inputs-container">
-        <AmountInput amount={amount} handleAmountInput={handleAmountInput} />
+        <AmountInput
+          amount={amount}
+          handleAmountInput={handleAmountInput}
+          className="input-amount"
+        />
         <div className="currencies-container">
-          <div className="currency" onClick={toggleCurrencyOptions}>
-            <img
-              src={currencyImage}
-              alt={currencyCode}
-              className="currency-image"
-            />
-            <p className="currency-text">{currencyCode}</p>
-            <img
-              src={dropdownIcon}
-              alt="dropdown"
-              className="dropdown selected"
-            />
-          </div>
+          <SelectedCurrency
+            className="currency"
+            toggleCurrencyOptions={toggleCurrencyOptions}
+            currencyImage={currencyImage}
+            currencyCode={currencyCode}
+          />
+
           {optionsOpen && (
             <form className="currency-options-container">
               {listOfCurrencies.map((item, index) => (
