@@ -10,7 +10,7 @@ import Conversion from "../Conversion";
 import { listOfCurrencies } from "./listOfCurrencies";
 //images
 import usd from "../../images/png/currencies/USD.png";
-
+//styles
 import "./style.scss";
 
 const sdk = new SDK({
@@ -20,31 +20,53 @@ const sdk = new SDK({
 });
 
 const Main = () => {
-  const [currencyCode, setCurrencyCode] = useState("USD");
+  const [activeCurrencyCode, setActiveCurrencyCode] = useState("USD");
   const [currencyImage, setCurrencyImage] = useState(usd);
   const [optionsOpen, setOptionsOpen] = useState(false);
   const [amount, setAmount] = useState("");
+  const [rates, setRates] = useState([]);
 
   useEffect(() => {
     sdk.getTicker().then((data) => {
-      // if (amount) {
-      //   const
-      // }
+      const currencies = listOfCurrencies.map((item) =>
+        item.currencyCode.toUpperCase(),
+      );
+
+      if (amount) {
+        const ratesList = data.filter(
+          (value) =>
+            currencies.includes(value.currency) && value.currency !== "USD",
+        );
+
+        setRates(ratesList);
+      }
     });
-  }, [amount]);
+  }, [amount, activeCurrencyCode]);
 
   const toggleCurrencyOptions = () => {
     setOptionsOpen(() => !optionsOpen);
   };
 
   const updateCurrency = (code, image) => {
-    setCurrencyCode(code);
+    setActiveCurrencyCode(code);
     setCurrencyImage(image);
   };
 
   const handleAmountInput = (event) => {
     const { value } = event.target;
     setAmount(value);
+  };
+
+  const calculateAmount = (activeCurrency, currencyCode) => {
+    if (activeCurrency === "USD" && rates.length) {
+      const conversionRate = rates.find(
+        (item) =>
+          item.pair === `${activeCurrency}${currencyCode.toUpperCase()}`,
+      ).ask;
+      return (amount * conversionRate).toFixed(2);
+    }
+
+    return 0;
   };
 
   return (
@@ -60,14 +82,14 @@ const Main = () => {
             className="currency"
             toggleCurrencyOptions={toggleCurrencyOptions}
             currencyImage={currencyImage}
-            currencyCode={currencyCode}
+            currencyCode={activeCurrencyCode}
           />
 
           {optionsOpen && (
             <form className="currency-options-container">
               {listOfCurrencies.map((item, index) => (
                 <Currency
-                  activeCurrency={currencyCode}
+                  activeCurrency={activeCurrencyCode}
                   currencyCode={item.currencyCode}
                   updateCurrency={updateCurrency}
                   updateOptionsStatus={setOptionsOpen}
@@ -82,13 +104,21 @@ const Main = () => {
       <div>
         {!Number(amount) && <p>Enter an amount to check the rates</p>}
         {amount &&
-          listOfCurrencies.map((item) => (
-            <Conversion
-              convertedAmount="0"
-              currencyImg={item.currencyImage}
-              currencyCode={item.currencyCode}
-            />
-          ))}
+          listOfCurrencies
+            .filter(
+              (item) => item.currencyCode.toUpperCase() !== activeCurrencyCode,
+            )
+            .map((item, index) => (
+              <Conversion
+                key={index}
+                convertedAmount={calculateAmount(
+                  activeCurrencyCode,
+                  item.currencyCode,
+                )}
+                currencyImg={item.currencyImage}
+                currencyCode={item.currencyCode}
+              />
+            ))}
       </div>
     </main>
   );
