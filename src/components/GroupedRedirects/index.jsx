@@ -30,7 +30,7 @@ const GroupedRedirects = () => {
   });
 
   return (
-    <section>
+    <section className="redirects-container">
       <img src={logo} alt="uphold logo" />
       {capitalizedLinks.map((value, index) => (
         //value is an object with a title and a list of links

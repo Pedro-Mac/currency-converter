@@ -20,18 +20,9 @@ const Currency = ({
     updateOptionsStatus(false);
   };
 
-  const handleClick = (event) => {
-    console.dir(event.target);
-  };
-
   return (
     <div className="currency">
-      <img
-        src={currencyImage}
-        alt={currencyCode}
-        className="currency-image"
-        onClick={handleClick}
-      />
+      <img src={currencyImage} alt={currencyCode} className="currency-image" />
       <label htmlFor={currencyCode} className="currency-text">
         {upperCurrencyCode}
       </label>

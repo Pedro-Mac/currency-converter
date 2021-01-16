@@ -1,0 +1,30 @@
+.conversion-container {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  height: 2rem;
+  margin: 1rem 0;
+
+  .conversion-amount {
+    margin: 0;
+    margin-left: 1rem;
+  }
+
+  .currency-container {
+    display: flex;
+    justify-content: flex-start;
+    margin-right: 2.25rem;
+    padding: 0.25rem 0.75rem;
+    width: 3rem;
+
+    img {
+      width: 20px;
+      height: 20px;
+    }
+
+    p {
+      padding-left: 0.25rem;
+      margin: 0;
+    }
+  }
+}

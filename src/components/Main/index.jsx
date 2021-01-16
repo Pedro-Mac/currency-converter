@@ -5,6 +5,7 @@ import SDK from "@uphold/uphold-sdk-javascript";
 import Currency from "../Currency";
 import AmountInput from "../AmountInput";
 import SelectedCurrency from "../SelectedCurrency";
+import Conversion from "../Conversion";
 
 import { listOfCurrencies } from "./listOfCurrencies";
 //images
@@ -22,11 +23,15 @@ const Main = () => {
   const [currencyCode, setCurrencyCode] = useState("USD");
   const [currencyImage, setCurrencyImage] = useState(usd);
   const [optionsOpen, setOptionsOpen] = useState(false);
-  const [amount, setAmount] = useState("0.00");
+  const [amount, setAmount] = useState("");
 
   useEffect(() => {
-    sdk.getTicker().then((data) => console.log(data));
-  }, []);
+    sdk.getTicker().then((data) => {
+      // if (amount) {
+      //   const
+      // }
+    });
+  }, [amount]);
 
   const toggleCurrencyOptions = () => {
     setOptionsOpen(() => !optionsOpen);
@@ -74,8 +79,17 @@ const Main = () => {
           )}
         </div>
       </div>
-      <div></div>
-      <p>Enter an amount to check the rates</p>
+      <div>
+        {!Number(amount) && <p>Enter an amount to check the rates</p>}
+        {amount &&
+          listOfCurrencies.map((item) => (
+            <Conversion
+              convertedAmount="0"
+              currencyImg={item.currencyImage}
+              currencyCode={item.currencyCode}
+            />
+          ))}
+      </div>
     </main>
   );
 };

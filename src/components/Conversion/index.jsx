@@ -1,0 +1,17 @@
+import React from "react";
+
+import "./style.scss";
+
+const Conversio = ({ convertedAmount, currencyImg, currencyCode }) => {
+  return (
+    <section className="conversion-container">
+      <p className="conversion-amount">{convertedAmount}</p>
+      <div className="currency-container">
+        <img src={currencyImg} alt={currencyCode} />
+        <p>{currencyCode.toUpperCase()}</p>
+      </div>
+    </section>
+  );
+};
+
+export default Conversio;
