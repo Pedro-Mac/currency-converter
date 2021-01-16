@@ -1,9 +1,15 @@
 import React, { useState, useEffect } from "react";
 import SDK from "@uphold/uphold-sdk-javascript";
 
+//components
 import Currency from "../Currency";
+import AmountInput from "../AmountInput";
+
+import { listOfCurrencies } from "./listOfCurrencies";
+//images
 import usd from "../../images/png/currencies/USD.png";
 import dropdownIcon from "../../images/svg/dropdown-icon.svg";
+
 import "./style.scss";
 
 const sdk = new SDK({
@@ -12,33 +18,42 @@ const sdk = new SDK({
   clientSecret: "bar",
 });
 
-// sdk
-//   .authorize("code")
-//   .then(() => sdk.getMe())
-//   .then((user) => {
-//     console.log(user);
-//   });
-
 const Main = () => {
-  const [currency, setCurrency] = useState("USD");
+  const [currencyCode, setCurrencyCode] = useState("USD");
+  const [currencyImage, setCurrencyImage] = useState(usd);
   const [optionsOpen, setOptionsOpen] = useState(false);
+  const [amount, setAmount] = useState("0.00");
+
+  useEffect(() => {
+    sdk.getTicker().then((data) => console.log(data));
+  }, []);
 
   const toggleCurrencyOptions = () => {
     setOptionsOpen(() => !optionsOpen);
   };
 
-  useEffect(() => {
-    sdk.getTicker().then((data) => console.log(data));
-  });
+  const updateCurrency = (code, image) => {
+    setCurrencyCode(code);
+    setCurrencyImage(image);
+  };
+
+  const handleAmountInput = (event) => {
+    const { value } = event.target;
+    setAmount(value);
+  };
 
   return (
     <main>
       <div className="inputs-container">
-        <input type="number" className="input-amount" placeholder="0.00" />
+        <AmountInput amount={amount} handleAmountInput={handleAmountInput} />
         <div className="currencies-container">
           <div className="currency" onClick={toggleCurrencyOptions}>
-            <img src={usd} alt="USD" className="currency-image" />
-            <p className="currency-text">{currency}</p>
+            <img
+              src={currencyImage}
+              alt={currencyCode}
+              className="currency-image"
+            />
+            <p className="currency-text">{currencyCode}</p>
             <img
               src={dropdownIcon}
               alt="dropdown"
@@ -46,12 +61,22 @@ const Main = () => {
             />
           </div>
           {optionsOpen && (
-            <div className="currency-options-container">
-              <Currency />
-            </div>
+            <form className="currency-options-container">
+              {listOfCurrencies.map((item, index) => (
+                <Currency
+                  activeCurrency={currencyCode}
+                  currencyCode={item.currencyCode}
+                  updateCurrency={updateCurrency}
+                  updateOptionsStatus={setOptionsOpen}
+                  currencyImage={item.currencyImage}
+                  key={index}
+                />
+              ))}
+            </form>
           )}
         </div>
       </div>
+      <div></div>
       <p>Enter an amount to check the rates</p>
     </main>
   );

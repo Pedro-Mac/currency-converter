@@ -15,6 +15,7 @@ main {
       background-color: $light-fade-color;
       outline: none;
       margin-left: 1rem;
+      width: 60%;
 
       &::-webkit-inner-spin-button,
       &::-webkit-outter-spin-button {
@@ -45,6 +46,7 @@ main {
         .currency-text {
           margin: 0;
           padding-left: 0.25rem;
+          width: 2rem;
         }
 
         .dropdown {
@@ -60,8 +62,9 @@ main {
       .currency-options-container {
         width: 100%;
         margin-top: 0.25rem;
-        background-color: #fff;
+        background-color: rgba(256, 256, 256, 1);
         border-radius: 0.5rem;
+        z-index: 10000;
       }
     }
   }
