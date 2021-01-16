@@ -1,9 +1,23 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
+import SDK from "@uphold/uphold-sdk-javascript";
 
 import Currency from "../Currency";
 import usd from "../../images/png/currencies/USD.png";
 import dropdownIcon from "../../images/svg/dropdown-icon.svg";
 import "./style.scss";
+
+const sdk = new SDK({
+  baseUrl: "http://api-sandbox.uphold.com",
+  clientId: "foo",
+  clientSecret: "bar",
+});
+
+// sdk
+//   .authorize("code")
+//   .then(() => sdk.getMe())
+//   .then((user) => {
+//     console.log(user);
+//   });
 
 const Main = () => {
   const [currency, setCurrency] = useState("USD");
@@ -12,6 +26,10 @@ const Main = () => {
   const toggleCurrencyOptions = () => {
     setOptionsOpen(() => !optionsOpen);
   };
+
+  useEffect(() => {
+    sdk.getTicker().then((data) => console.log(data));
+  });
 
   return (
     <main>
