@@ -54,17 +54,47 @@ const Main = () => {
 
   const handleAmountInput = (event) => {
     const { value } = event.target;
-    setAmount(value);
+    if (value.length < 11) setAmount(value);
   };
 
-  const calculateAmount = (activeCurrency, currencyCode) => {
+  const calculateConversion = (activeCurrency, currencyCode) => {
     if (activeCurrency === "USD" && rates.length) {
       const conversionRate = rates.find(
         (item) =>
           item.pair === `${activeCurrency}${currencyCode.toUpperCase()}`,
       ).ask;
-      return (amount * conversionRate).toFixed(2);
+
+      return (Number(amount) * Number(conversionRate)).toFixed(2);
+    } else if (activeCurrency !== "USD" && rates.length) {
+      const convertToUSD =
+        1 / Number(rates.find((item) => item.currency === activeCurrency).ask);
+
+      const getConvertionRate = rates.find(
+        (item) => item.currency === currencyCode.toUpperCase(),
+      );
+
+      const defineDecimalPlaces = (value) => {
+        if (value > 1000) {
+          return value.toFixed(2);
+        } else if (value >= 0.001) {
+          return value.toFixed(5);
+        } else {
+          return value.toFixed(7);
+        }
+      };
+
+      if (!getConvertionRate) {
+        const convertionResult = amount * convertToUSD;
+        return defineDecimalPlaces(convertionResult);
+      } else {
+        const rate = getConvertionRate.ask;
+        console.log("convertion rate", rate);
+        const convertionResult = amount * convertToUSD * rate;
+        return defineDecimalPlaces(convertionResult);
+      }
     }
+
+    // console.log("rates", rates);
 
     return 0;
   };
@@ -101,7 +131,7 @@ const Main = () => {
           )}
         </div>
       </div>
-      <div>
+      <div className="displayed-currencies">
         {!Number(amount) && <p>Enter an amount to check the rates</p>}
         {amount &&
           listOfCurrencies
@@ -111,7 +141,7 @@ const Main = () => {
             .map((item, index) => (
               <Conversion
                 key={index}
-                convertedAmount={calculateAmount(
+                convertedAmount={calculateConversion(
                   activeCurrencyCode,
                   item.currencyCode,
                 )}
