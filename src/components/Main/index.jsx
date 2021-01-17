@@ -27,8 +27,8 @@ const Main = () => {
   const [currencyImage, setCurrencyImage] = useState(usd);
   const [optionsOpen, setOptionsOpen] = useState(false);
   const [amount, setAmount] = useState("");
-  const [rates, setRates] = useState([]);
   const [conversionsList, setConversionsList] = useState([]);
+  const [isReady, setIsReady] = useState(false);
 
   const debounce = useCallback((scheduledReq) => {
     document.addEventListener("keydown", () => clearTimeout(scheduledReq));
@@ -37,60 +37,64 @@ const Main = () => {
   }, []);
 
   useEffect(() => {
-    sdk.getTicker().then((data) => {
-      const currencies = listOfCurrencies.map((item) =>
-        item.currencyCode.toUpperCase(),
-      );
-
-      const ratesList = data.filter(
-        (value) =>
-          currencies.includes(value.currency) && value.currency !== "USD",
-      );
-      setRates(ratesList);
-    });
-
-    if (amount) {
-      const scheduleCalculation = setTimeout(() => {
-        const conversionRates = rates.map((item) => ({
-          currency: item.currency,
-          conversion: item.ask,
-        }));
-        if (activeCurrencyCode === "USD" && rates.length) {
-          for (let el of conversionRates) {
-            el.conversion = Number(el.conversion) * Number(amount);
-          }
-        } else if (activeCurrencyCode !== "USD" && rates.length) {
-          const activeCurrencyRateToUSD = rates.find(
-            (item) => item.currency === activeCurrencyCode,
-          ).ask;
-          console.log(activeCurrencyRateToUSD);
-          for (let el of conversionRates) {
-            if (el.currency === activeCurrencyCode) {
-              el.currency = "USD";
-              el.conversion = amount / activeCurrencyRateToUSD;
-            } else {
-              el.conversion =
-                (amount / activeCurrencyRateToUSD) * el.conversion;
-            }
-          }
-        }
-        const sortedConversionRates = conversionRates.sort((a, b) => {
-          if (a.currency < b.currency) {
-            return -1;
-          } else if (a.currency > b.currency) {
-            return 1;
-          } else {
-            return 0;
-          }
+    sdk
+      .getTicker()
+      .then((data) => {
+        const ratesList = data.filter((value) => {
+          return (
+            value.currency !== "USD" &&
+            listOfCurrencies.some(
+              (item) => item.currencyCode === value.currency,
+            )
+          );
         });
+        return ratesList;
+      })
+      .then((list) => {
+        if (amount) {
+          const scheduleCalculation = setTimeout(() => {
+            const conversionRates = list.map((item) => ({
+              currency: item.currency,
+              conversion: item.ask,
+            }));
+            if (activeCurrencyCode === "USD" && list.length) {
+              for (let el of conversionRates) {
+                el.conversion = Number(el.conversion) * Number(amount);
+              }
+            } else if (activeCurrencyCode !== "USD" && list.length) {
+              const activeCurrencyRateToUSD = list.find(
+                (item) => item.currency === activeCurrencyCode,
+              ).ask;
+              console.log(activeCurrencyRateToUSD);
+              for (let el of conversionRates) {
+                if (el.currency === activeCurrencyCode) {
+                  el.currency = "USD";
+                  el.conversion = amount / activeCurrencyRateToUSD;
+                } else {
+                  el.conversion =
+                    (amount / activeCurrencyRateToUSD) * el.conversion;
+                }
+              }
+            }
+            const sortedConversionRates = conversionRates.sort((a, b) => {
+              if (a.currency < b.currency) {
+                return -1;
+              } else if (a.currency > b.currency) {
+                return 1;
+              } else {
+                return 0;
+              }
+            });
+            setIsReady(true);
+            setConversionsList(sortedConversionRates);
+          }, 1000);
 
-        setConversionsList(() => sortedConversionRates);
-      }, 1000);
-
-      debounce(scheduleCalculation);
-    } else {
-      setConversionsList([]);
-    }
+          return debounce(scheduleCalculation);
+        } else {
+          setIsReady(false);
+          setConversionsList([]);
+        }
+      });
   }, [amount, activeCurrencyCode, debounce]);
 
   const toggleCurrencyOptions = () => {
@@ -140,17 +144,20 @@ const Main = () => {
         </div>
       </div>
       <div className="displayed-currencies">
-        {!Number(amount) && <p>Enter an amount to check the rates</p>}
-        {amount &&
-          conversionsList.length &&
-          listOfCurrencies
-            .filter((item) => item.currencyCode !== activeCurrencyCode)
+        {!isReady && <p>Enter an amount to check the rates</p>}
+        {isReady &&
+          conversionsList
+            .filter((item) => item.currency !== activeCurrencyCode)
             .map((item, index) => (
               <Conversion
                 key={index}
-                convertedAmount={conversionsList[index].conversion}
-                currencyImg={item.currencyImage}
-                currencyCode={item.currencyCode}
+                convertedAmount={item.conversion}
+                currencyImg={
+                  listOfCurrencies.find(
+                    (value) => value.currencyCode === item.currency,
+                  ).currencyImage
+                }
+                currencyCode={item.currency}
               />
             ))}
       </div>

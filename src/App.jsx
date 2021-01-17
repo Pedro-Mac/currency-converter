@@ -6,6 +6,7 @@ import NavBar from "./components/NavBar";
 import Header from "./components/Header";
 import Main from "./components/Main";
 import GroupedRedirects from "./components/GroupedRedirects";
+import Footer from "./components/Footer";
 
 function App() {
   return (
@@ -14,6 +15,7 @@ function App() {
       <Header />
       <Main />
       <GroupedRedirects />
+      <Footer />
     </div>
   );
 }
