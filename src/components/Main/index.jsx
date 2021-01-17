@@ -13,6 +13,9 @@ import usd from "../../images/png/currencies/USD.png";
 //styles
 import "./style.scss";
 
+//services
+import { defineDecimalPlaces } from "./services/decimalPlaces";
+
 const sdk = new SDK({
   baseUrl: "http://api-sandbox.uphold.com",
   clientId: "foo",
@@ -25,6 +28,7 @@ const Main = () => {
   const [optionsOpen, setOptionsOpen] = useState(false);
   const [amount, setAmount] = useState("");
   const [rates, setRates] = useState([]);
+  const [conversionsList, setConversionsList] = useState([]);
 
   useEffect(() => {
     sdk.getTicker().then((data) => {
@@ -32,13 +36,46 @@ const Main = () => {
         item.currencyCode.toUpperCase(),
       );
 
-      if (amount) {
-        const ratesList = data.filter(
-          (value) =>
-            currencies.includes(value.currency) && value.currency !== "USD",
-        );
+      const ratesList = data.filter(
+        (value) =>
+          currencies.includes(value.currency) && value.currency !== "USD",
+      );
+      setRates(ratesList);
 
-        setRates(ratesList);
+      if (amount) {
+        const conversionRates = rates.map((item) => ({
+          currency: item.currency,
+          conversion: item.ask,
+        }));
+        if (activeCurrencyCode === "USD" && rates.length) {
+          for (let el of conversionRates) {
+            el.conversion = Number(el.conversion) * Number(amount);
+          }
+        } else if (activeCurrencyCode !== "USD" && rates.length) {
+          const activeCurrencyRateToUSD = rates.find(
+            (item) => item.currency === activeCurrencyCode,
+          ).ask;
+          console.log(activeCurrencyRateToUSD);
+          for (let el of conversionRates) {
+            if (el.currency === activeCurrencyCode) {
+              el.currency = "USD";
+              el.conversion = amount / activeCurrencyRateToUSD;
+            } else {
+              el.conversion =
+                (amount / activeCurrencyRateToUSD) * el.conversion;
+            }
+          }
+        }
+        const sortedConversionRates = conversionRates.sort((a, b) => {
+          if (a.currency < b.currency) {
+            return -1;
+          } else if (a.currency > b.currency) {
+            return 1;
+          } else {
+            return 0;
+          }
+        });
+        setConversionsList(() => sortedConversionRates);
       }
     });
   }, [amount, activeCurrencyCode]);
@@ -55,48 +92,6 @@ const Main = () => {
   const handleAmountInput = (event) => {
     const { value } = event.target;
     if (value.length < 11) setAmount(value);
-  };
-
-  const calculateConversion = (activeCurrency, currencyCode) => {
-    if (activeCurrency === "USD" && rates.length) {
-      const conversionRate = rates.find(
-        (item) =>
-          item.pair === `${activeCurrency}${currencyCode.toUpperCase()}`,
-      ).ask;
-
-      return (Number(amount) * Number(conversionRate)).toFixed(2);
-    } else if (activeCurrency !== "USD" && rates.length) {
-      const convertToUSD =
-        1 / Number(rates.find((item) => item.currency === activeCurrency).ask);
-
-      const getConvertionRate = rates.find(
-        (item) => item.currency === currencyCode.toUpperCase(),
-      );
-
-      const defineDecimalPlaces = (value) => {
-        if (value > 1000) {
-          return value.toFixed(2);
-        } else if (value >= 0.001) {
-          return value.toFixed(5);
-        } else {
-          return value.toFixed(7);
-        }
-      };
-
-      if (!getConvertionRate) {
-        const convertionResult = amount * convertToUSD;
-        return defineDecimalPlaces(convertionResult);
-      } else {
-        const rate = getConvertionRate.ask;
-        console.log("convertion rate", rate);
-        const convertionResult = amount * convertToUSD * rate;
-        return defineDecimalPlaces(convertionResult);
-      }
-    }
-
-    // console.log("rates", rates);
-
-    return 0;
   };
 
   return (
@@ -134,17 +129,13 @@ const Main = () => {
       <div className="displayed-currencies">
         {!Number(amount) && <p>Enter an amount to check the rates</p>}
         {amount &&
+          conversionsList.length &&
           listOfCurrencies
-            .filter(
-              (item) => item.currencyCode.toUpperCase() !== activeCurrencyCode,
-            )
+            .filter((item) => item.currencyCode !== activeCurrencyCode)
             .map((item, index) => (
               <Conversion
                 key={index}
-                convertedAmount={calculateConversion(
-                  activeCurrencyCode,
-                  item.currencyCode,
-                )}
+                convertedAmount={conversionsList[index].conversion}
                 currencyImg={item.currencyImage}
                 currencyCode={item.currencyCode}
               />

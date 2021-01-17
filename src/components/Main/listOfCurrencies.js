@@ -6,10 +6,20 @@ import btc from "../../images/png/currencies/BTC.png";
 import gbp from "../../images/png/currencies/GBP.png";
 import pln from "../../images/png/currencies/PLN.png";
 
-const currenciesStrings = ["eur", "usd", "bat", "bch", "btc", "gbp", "pln"];
-const currenciesImages = [eur, usd, bat, bch, btc, gbp, pln];
-
-export const listOfCurrencies = currenciesStrings.map((item, index) => ({
-  currencyCode: item,
-  currencyImage: currenciesImages[index],
-}));
+export const listOfCurrencies = [
+  { currencyCode: "EUR", currencyImage: eur },
+  { currencyCode: "USD", currencyImage: usd },
+  { currencyCode: "BAT", currencyImage: bat },
+  { currencyCode: "BCH", currencyImage: bch },
+  { currencyCode: "BTC", currencyImage: btc },
+  { currencyCode: "GBP", currencyImage: gbp },
+  { currencyCode: "PLN", currencyImage: pln },
+].sort((a, b) => {
+  if (a.currencyCode < b.currencyCode) {
+    return -1;
+  } else if (a.currencyCode > b.currencyCode) {
+    return 1;
+  } else {
+    return 0;
+  }
+});

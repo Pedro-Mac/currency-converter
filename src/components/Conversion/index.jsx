@@ -8,7 +8,7 @@ const Conversio = ({ convertedAmount, currencyImg, currencyCode }) => {
       <p className="conversion-amount">{convertedAmount}</p>
       <div className="currency-container">
         <img src={currencyImg} alt={currencyCode} />
-        <p>{currencyCode.toUpperCase()}</p>
+        <p>{currencyCode}</p>
       </div>
     </section>
   );
