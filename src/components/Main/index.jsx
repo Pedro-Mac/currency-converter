@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import SDK from "@uphold/uphold-sdk-javascript";
 
 //components
@@ -30,6 +30,12 @@ const Main = () => {
   const [rates, setRates] = useState([]);
   const [conversionsList, setConversionsList] = useState([]);
 
+  const debounce = useCallback((scheduledReq) => {
+    document.addEventListener("keydown", () => clearTimeout(scheduledReq));
+    return () =>
+      document.removeEventListener("keydown", () => clearTimeout(scheduledReq));
+  }, []);
+
   useEffect(() => {
     sdk.getTicker().then((data) => {
       const currencies = listOfCurrencies.map((item) =>
@@ -41,8 +47,10 @@ const Main = () => {
           currencies.includes(value.currency) && value.currency !== "USD",
       );
       setRates(ratesList);
+    });
 
-      if (amount) {
+    if (amount) {
+      const scheduleCalculation = setTimeout(() => {
         const conversionRates = rates.map((item) => ({
           currency: item.currency,
           conversion: item.ask,
@@ -75,10 +83,15 @@ const Main = () => {
             return 0;
           }
         });
+
         setConversionsList(() => sortedConversionRates);
-      }
-    });
-  }, [amount, activeCurrencyCode]);
+      }, 1000);
+
+      debounce(scheduleCalculation);
+    } else {
+      setConversionsList([]);
+    }
+  }, [amount, activeCurrencyCode, debounce]);
 
   const toggleCurrencyOptions = () => {
     setOptionsOpen(() => !optionsOpen);
