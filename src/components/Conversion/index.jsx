@@ -2,8 +2,6 @@ import React from "react";
 
 import "./style.scss";
 
-import { listOfCurrencies } from "../Main/listOfCurrencies";
-
 const Conversio = ({ convertedAmount, currencyImg, currencyCode }) => {
   return (
     <section className="conversion-container">

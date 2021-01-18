@@ -7,7 +7,8 @@ import AmountInput from "../AmountInput";
 import SelectedCurrency from "../SelectedCurrency";
 import Conversion from "../Conversion";
 
-import { listOfCurrencies } from "./listOfCurrencies";
+import { listOfCurrencies } from "./services/listOfCurrencies";
+import { defineDecimalPlaces } from "./services/decimalPlaces";
 //images
 import usd from "../../images/png/currencies/USD.png";
 //styles
@@ -70,10 +71,13 @@ const Main = () => {
           for (let el of conversionRates) {
             if (el.currency === activeCurrencyCode) {
               el.currency = "USD";
-              el.conversion = amount / activeCurrencyRateToUSD;
+              el.conversion = defineDecimalPlaces(
+                amount / activeCurrencyRateToUSD,
+              );
             } else {
-              el.conversion =
-                (amount / activeCurrencyRateToUSD) * el.conversion;
+              el.conversion = defineDecimalPlaces(
+                (amount / activeCurrencyRateToUSD) * el.conversion,
+              );
             }
           }
         }
@@ -149,7 +153,11 @@ const Main = () => {
         </div>
       </div>
       <div className="displayed-currencies">
-        {!amount && <p>Enter an amount to check the rates</p>}
+        {!amount && (
+          <p className="displayed-currencies-none">
+            Enter an amount to check the rates
+          </p>
+        )}
         {amount &&
           isReady &&
           conversionsList

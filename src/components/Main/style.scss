@@ -48,6 +48,7 @@ main {
           margin: 0;
           padding-left: 0.25rem;
           width: 2rem;
+          line-height: 140%;
         }
 
         .dropdown {
@@ -85,5 +86,8 @@ main {
   .displayed-currencies {
     min-height: 20rem;
     margin-top: 1rem;
+    .displayed-currencies-none {
+      color: $fade-color;
+    }
   }
 }
