@@ -13,9 +13,6 @@ import usd from "../../images/png/currencies/USD.png";
 //styles
 import "./style.scss";
 
-//services
-import { defineDecimalPlaces } from "./services/decimalPlaces";
-
 const sdk = new SDK({
   baseUrl: "http://api-sandbox.uphold.com",
   clientId: "foo",
@@ -23,8 +20,12 @@ const sdk = new SDK({
 });
 
 const Main = () => {
-  const [activeCurrencyCode, setActiveCurrencyCode] = useState("USD");
-  const [currencyImage, setCurrencyImage] = useState(usd);
+  const [activeCurrencyCode, setActiveCurrencyCode] = useState(
+    localStorage.getItem("currCode") || "USD",
+  );
+  const [currencyImage, setCurrencyImage] = useState(
+    localStorage.getItem("currImage") || usd,
+  );
   const [optionsOpen, setOptionsOpen] = useState(false);
   const [amount, setAmount] = useState("");
   const [conversionsList, setConversionsList] = useState([]);
@@ -37,64 +38,62 @@ const Main = () => {
   }, []);
 
   useEffect(() => {
-    sdk
-      .getTicker()
-      .then((data) => {
-        const ratesList = data.filter((value) => {
-          return (
-            value.currency !== "USD" &&
-            listOfCurrencies.some(
-              (item) => item.currencyCode === value.currency,
-            )
-          );
-        });
-        return ratesList;
-      })
-      .then((list) => {
-        if (amount) {
-          const scheduleCalculation = setTimeout(() => {
-            const conversionRates = list.map((item) => ({
-              currency: item.currency,
-              conversion: item.ask,
-            }));
-            if (activeCurrencyCode === "USD" && list.length) {
-              for (let el of conversionRates) {
-                el.conversion = Number(el.conversion) * Number(amount);
-              }
-            } else if (activeCurrencyCode !== "USD" && list.length) {
-              const activeCurrencyRateToUSD = list.find(
-                (item) => item.currency === activeCurrencyCode,
-              ).ask;
-              console.log(activeCurrencyRateToUSD);
-              for (let el of conversionRates) {
-                if (el.currency === activeCurrencyCode) {
-                  el.currency = "USD";
-                  el.conversion = amount / activeCurrencyRateToUSD;
-                } else {
-                  el.conversion =
-                    (amount / activeCurrencyRateToUSD) * el.conversion;
-                }
+    // Get currencies conversion from API and filter them
+    const listOfCurrenciesToUse = sdk.getTicker().then((data) => {
+      const ratesList = data.filter((value) => {
+        return (
+          value.currency !== "USD" &&
+          listOfCurrencies.some((item) => item.currencyCode === value.currency)
+        );
+      });
+      return ratesList;
+    });
+
+    const calculateRates = async () => {
+      const list = await listOfCurrenciesToUse;
+      if (amount) {
+        const scheduleCalculation = setTimeout(() => {
+          const conversionRates = list.map((item) => ({
+            currency: item.currency,
+            conversion: item.ask,
+          }));
+          if (activeCurrencyCode === "USD") {
+            for (let el of conversionRates) {
+              el.conversion = Number(el.conversion) * Number(amount);
+            }
+          } else if (activeCurrencyCode !== "USD") {
+            //Convert the selected currency to USD in order to convert it to all other currencies
+            const activeCurrencyRateToUSD = list.find(
+              (item) => item.currency === activeCurrencyCode,
+            ).ask;
+            for (let el of conversionRates) {
+              if (el.currency === activeCurrencyCode) {
+                el.currency = "USD";
+                el.conversion = amount / activeCurrencyRateToUSD;
+              } else {
+                el.conversion =
+                  (amount / activeCurrencyRateToUSD) * el.conversion;
               }
             }
-            const sortedConversionRates = conversionRates.sort((a, b) => {
-              if (a.currency < b.currency) {
-                return -1;
-              } else if (a.currency > b.currency) {
-                return 1;
-              } else {
-                return 0;
-              }
-            });
-            setIsReady(true);
-            setConversionsList(sortedConversionRates);
-          }, 1000);
-
-          return debounce(scheduleCalculation);
-        } else {
-          setIsReady(false);
-          setConversionsList([]);
-        }
-      });
+          }
+          const sortedConversionRates = conversionRates.sort((a, b) => {
+            if (a.currency < b.currency) {
+              return -1;
+            } else if (a.currency > b.currency) {
+              return 1;
+            } else {
+              return 0;
+            }
+          });
+          setIsReady(true);
+          setConversionsList(sortedConversionRates);
+        }, 1000);
+      } else {
+        setIsReady(false);
+        setConversionsList([]);
+      }
+    };
+    calculateRates();
   }, [amount, activeCurrencyCode, debounce]);
 
   const toggleCurrencyOptions = () => {
@@ -102,6 +101,8 @@ const Main = () => {
   };
 
   const updateCurrency = (code, image) => {
+    localStorage.setItem("currCode", code);
+    localStorage.setItem("currImage", image);
     setActiveCurrencyCode(code);
     setCurrencyImage(image);
   };
@@ -144,8 +145,9 @@ const Main = () => {
         </div>
       </div>
       <div className="displayed-currencies">
-        {!isReady && <p>Enter an amount to check the rates</p>}
-        {isReady &&
+        {!amount && <p>Enter an amount to check the rates</p>}
+        {amount &&
+          isReady &&
           conversionsList
             .filter((item) => item.currency !== activeCurrencyCode)
             .map((item, index) => (
