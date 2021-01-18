@@ -38,62 +38,65 @@ const Main = () => {
   }, []);
 
   useEffect(() => {
-    // Get currencies conversion from API and filter them
-    const listOfCurrenciesToUse = sdk.getTicker().then((data) => {
-      const ratesList = data.filter((value) => {
-        return (
-          value.currency !== "USD" &&
-          listOfCurrencies.some((item) => item.currencyCode === value.currency)
-        );
-      });
-      return ratesList;
-    });
+    if (amount) {
+      const listRequest = setTimeout(async () => {
+        // Get currencies conversion from API and filter them
+        const listOfCurrenciesToUse = await sdk.getTicker().then((data) => {
+          const ratesList = data.filter((value) => {
+            return (
+              value.currency !== "USD" &&
+              listOfCurrencies.some(
+                (item) => item.currencyCode === value.currency,
+              )
+            );
+          });
+          return ratesList;
+        });
 
-    const calculateRates = async () => {
-      const list = await listOfCurrenciesToUse;
-      if (amount) {
-        const scheduleCalculation = setTimeout(() => {
-          const conversionRates = list.map((item) => ({
-            currency: item.currency,
-            conversion: item.ask,
-          }));
-          if (activeCurrencyCode === "USD") {
-            for (let el of conversionRates) {
-              el.conversion = Number(el.conversion) * Number(amount);
-            }
-          } else if (activeCurrencyCode !== "USD") {
-            //Convert the selected currency to USD in order to convert it to all other currencies
-            const activeCurrencyRateToUSD = list.find(
-              (item) => item.currency === activeCurrencyCode,
-            ).ask;
-            for (let el of conversionRates) {
-              if (el.currency === activeCurrencyCode) {
-                el.currency = "USD";
-                el.conversion = amount / activeCurrencyRateToUSD;
-              } else {
-                el.conversion =
-                  (amount / activeCurrencyRateToUSD) * el.conversion;
-              }
+        const conversionRates = listOfCurrenciesToUse.map((item) => ({
+          currency: item.currency,
+          conversion: item.ask,
+        }));
+        if (activeCurrencyCode === "USD") {
+          for (let el of conversionRates) {
+            el.conversion = Number(el.conversion) * Number(amount);
+          }
+        } else if (activeCurrencyCode !== "USD") {
+          //Convert the selected currency to USD in order to convert it to all other currencies from there
+          const activeCurrencyRateToUSD = listOfCurrenciesToUse.find(
+            (item) => item.currency === activeCurrencyCode,
+          ).ask;
+
+          for (let el of conversionRates) {
+            if (el.currency === activeCurrencyCode) {
+              el.currency = "USD";
+              el.conversion = amount / activeCurrencyRateToUSD;
+            } else {
+              el.conversion =
+                (amount / activeCurrencyRateToUSD) * el.conversion;
             }
           }
-          const sortedConversionRates = conversionRates.sort((a, b) => {
-            if (a.currency < b.currency) {
-              return -1;
-            } else if (a.currency > b.currency) {
-              return 1;
-            } else {
-              return 0;
-            }
-          });
-          setIsReady(true);
-          setConversionsList(sortedConversionRates);
-        }, 1000);
-      } else {
-        setIsReady(false);
-        setConversionsList([]);
-      }
-    };
-    calculateRates();
+        }
+
+        const sortedConversionRates = conversionRates.sort((a, b) => {
+          if (a.currency < b.currency) {
+            return -1;
+          } else if (a.currency > b.currency) {
+            return 1;
+          } else {
+            return 0;
+          }
+        });
+        setIsReady(true);
+        setConversionsList(sortedConversionRates);
+
+        console.log(listOfCurrenciesToUse);
+      }, 1000);
+      return debounce(listRequest);
+    } else {
+      setConversionsList([]);
+      setIsReady(false);
+    }
   }, [amount, activeCurrencyCode, debounce]);
 
   const toggleCurrencyOptions = () => {
@@ -103,6 +106,7 @@ const Main = () => {
   const updateCurrency = (code, image) => {
     localStorage.setItem("currCode", code);
     localStorage.setItem("currImage", image);
+    setIsReady(false);
     setActiveCurrencyCode(code);
     setCurrencyImage(image);
   };
